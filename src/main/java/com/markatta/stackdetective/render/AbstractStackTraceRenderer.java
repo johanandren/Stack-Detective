@@ -1,8 +1,8 @@
 package com.markatta.stackdetective.render;
 
-import com.markatta.stackdetective.SegmentEntry;
-import com.markatta.stackdetective.StackTrace;
-import com.markatta.stackdetective.TraceSegment;
+import com.markatta.stackdetective.model.Entry;
+import com.markatta.stackdetective.model.StackTrace;
+import com.markatta.stackdetective.model.Segment;
 import com.markatta.stackdetective.filter.EntryFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,34 +23,38 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
     public final String render(StackTrace stackTrace) {
         StringBuilder builder = new StringBuilder();
         renderPreTrace(builder, stackTrace);
-        List<SegmentEntry> ignoredEntries = new ArrayList<SegmentEntry>();
+        List<Entry> ignoredEntries = new ArrayList<Entry>();
 
-        for (TraceSegment segment : stackTrace.getSegments()) {
-            renderPreSegment(builder, segment);
+        for (int segmentIndex = 0; segmentIndex < stackTrace.getSegments().size(); segmentIndex++) {
+            Segment segment = stackTrace.getSegments().get(segmentIndex);
+            
+            renderPreSegment(builder, stackTrace.getSegments(), segmentIndex);
 
-            for (int entryNumber = 0; entryNumber < segment.numberOfEntries(); entryNumber++) {
-                SegmentEntry entry = segment.getEntries().get(entryNumber);
+            for (int entryIndex = 0; entryIndex < segment.numberOfEntries(); entryIndex++) {
+                Entry entry = segment.getEntries().get(entryIndex);
 
                 if (filter == null) {
-                    renderEntry(builder, entry);
-                } else if (filter.include(entry, entryNumber)) {
+                    renderEntry(builder, segment.getEntries(), entryIndex);
+                } else if (filter.include(entry, entryIndex)) {
                     // before this there were ignored entries
                     if (!ignoredEntries.isEmpty()) {
-                        renderIgnoredEntries(builder, ignoredEntries);
+                        renderIgnoredEntries(builder, ignoredEntries, entryIndex - ignoredEntries.size());
                         ignoredEntries.clear();
                     }
-                    renderEntry(builder, entry);
+                    renderEntry(builder, segment.getEntries(), entryIndex);
                 } else {
                     ignoredEntries.add(entry);
                 }
             }
             // the stack trace ends with ignored entries
             if (!ignoredEntries.isEmpty()) {
-                renderIgnoredEntries(builder, ignoredEntries);
+                renderIgnoredEntries(builder, ignoredEntries, segment.numberOfEntries() - ignoredEntries.size());
                 ignoredEntries.clear();
             }
 
-            renderPostSegment(builder, segment);
+            renderPostSegment(builder, stackTrace.getSegments(), segmentIndex);
+            
+            segmentIndex++;
         }
 
         renderPostTrace(builder, stackTrace);
@@ -76,18 +80,21 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
     /**
      * Add text before iterating over the entries of the segment. (For example
      * the text of the exception)
+     * 
      * @param builder Add text to this builder
-     * @param trace The stack trace
+     * @param segment The stack trace segment
+     * @param segmentIndex The number of the segment in the trace, starting with 0
      */
-    protected void renderPreSegment(StringBuilder builder, TraceSegment segment) {
+    protected void renderPreSegment(StringBuilder builder, List<Segment> segments, int segmentIndex) {
     }
 
     /**
      * Add text after iterating over the entries of the stack trace
      * @param builder Add text to this builder
-     * @param trace The stack trace
+     * @param segment The stack trace segment
+     * @param segmentIndex The number of the segment in the trace, starting with 0
      */
-    protected void renderPostSegment(StringBuilder builder, TraceSegment segment) {
+    protected void renderPostSegment(StringBuilder builder, List<Segment> segments, int segmentIndex) {
     }
 
     /**
@@ -96,15 +103,17 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
      * 
      * @param builder Add text to this builder
      * @param trace The stack trace
+     * @param entryIndex  The number of the entry in the segment, starting with 0
      */
-    protected void renderEntry(StringBuilder builder, SegmentEntry entry) {
+    protected void renderEntry(StringBuilder builder, List<Entry> entries, int entryIndex) {
     }
 
     /**
      * Add text for one or more entries that has been ignored.
      * @param builder
      * @param entry 
+     * @param firstEntryIndex the index in the segment of the first entry that was ignored starting with 1
      */
-    protected void renderIgnoredEntries(StringBuilder builder, List<SegmentEntry> ignoredEntries) {
+    protected void renderIgnoredEntries(StringBuilder builder, List<Entry> ignoredEntries, int firstEntryIndex) {
     }
 }

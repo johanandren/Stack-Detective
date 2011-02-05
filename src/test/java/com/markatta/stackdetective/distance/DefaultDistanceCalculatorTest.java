@@ -1,8 +1,8 @@
 package com.markatta.stackdetective.distance;
 
 import com.markatta.stackdetective.distance.cost.FavourBeginStrategy;
-import com.markatta.stackdetective.StackTrace;
-import com.markatta.stackdetective.parse.StackTraceTextParser;
+import com.markatta.stackdetective.model.StackTrace;
+import com.markatta.stackdetective.parse.DefaultStackTraceTextParser;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -14,7 +14,7 @@ public class DefaultDistanceCalculatorTest {
 
     @Test
     public void equalTracesHave0Difference() {
-        StackTraceTextParser parser = new StackTraceTextParser();
+        DefaultStackTraceTextParser parser = new DefaultStackTraceTextParser();
         StackTrace result = parser.parse("java.lang.NullPointerException\n"
                 + "        at com.markatta.stackdetective.StackTrace.parseStackTrace(StackTrace.java:21)\n"
                 + "        at com.markatta.stackdetective.StackTraceTest.testParseStackTrace(StackTraceTest.java:15)\n");
@@ -25,7 +25,7 @@ public class DefaultDistanceCalculatorTest {
 
     @Test
     public void nonEqualHaveDifference() {
-        StackTraceTextParser parser = new StackTraceTextParser();
+        DefaultStackTraceTextParser parser = new DefaultStackTraceTextParser();
         StackTrace trace1 = parser.parse("Exception in thread \"main\" java.lang.RuntimeException: Error running test app\n"
                 + "	at com.markatta.stackdetective.TestApp.main(TestApp.java:61)\n"
                 + "Caused by: java.lang.ArrayIndexOutOfBoundsException: 130\n"
