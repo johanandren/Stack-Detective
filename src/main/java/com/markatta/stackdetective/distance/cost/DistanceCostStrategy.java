@@ -1,6 +1,6 @@
 package com.markatta.stackdetective.distance.cost;
 
-import com.markatta.stackdetective.SegmentEntry;
+import com.markatta.stackdetective.model.Entry;
 import java.util.List;
 
 /**
@@ -11,9 +11,9 @@ import java.util.List;
  */
 public interface DistanceCostStrategy {
 
-    int delete(List<SegmentEntry> a, int index);
+    int delete(List<Entry> a, int index);
 
-    int add(List<SegmentEntry> a, int index);
+    int add(List<Entry> a, int index);
 
-    int substitute(List<SegmentEntry> a, int indexA, List<SegmentEntry> b, int indexB);
+    int substitute(List<Entry> a, int indexA, List<Entry> b, int indexB);
 }
