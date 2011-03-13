@@ -1,18 +1,16 @@
 
 package com.markatta.stackdetective.distance;
 
-import com.markatta.stackdetective.model.StackTrace;
-
 /**
  *
  * @author johan
  */
-public interface DistanceCalculator {
+public interface DistanceCalculator<T> {
     /**
-     * Calculate distance between stack trace <code>a</code> and trace <code>b</code>
-     * @return a positive or zero value where zero means that the two traces
+     * Calculate distance between <code>a</code> and <code>b</code>
+     * @return a positive or zero value where zero means that the two objects
      *         very much alike eachother and a high value means that they have
      *         nothing in common.
      */
-    public int calculateDistance(StackTrace a, StackTrace b);
+    public int calculateDistance(T a, T b);
 }

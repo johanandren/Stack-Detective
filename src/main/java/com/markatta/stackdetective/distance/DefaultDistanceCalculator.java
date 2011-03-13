@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
  * 
  * @author johan
  */
-public class DefaultDistanceCalculator implements DistanceCalculator {
+public class DefaultDistanceCalculator implements DistanceCalculator<StackTrace> {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultDistanceCalculator.class);
 
@@ -42,6 +42,7 @@ public class DefaultDistanceCalculator implements DistanceCalculator {
         this.filter = filter;
     }
 
+    @Override
     public int calculateDistance(StackTrace a, StackTrace b) {
         List<Segment> segmentsForA = a.getSegments();
         List<Segment> segmentsForB = b.getSegments();
@@ -55,15 +56,13 @@ public class DefaultDistanceCalculator implements DistanceCalculator {
             LOGGER.debug("Same root exception type, " + SAME_ROOT_MODIFIER + " distance");
         }
 
+        // penalize each segment count difference with 100
+        if (segmentsForA.size() != segmentsForB.size()) {
 
-
-        // penalize each segment count difference with 1000
-//        if (segmentsForA.size() != segmentsForB.size()) {
-//
-//            int differenceCost = 100 * Math.abs(segmentsForA.size() - segmentsForB.size());
-//            logger.debug("Different number of segments, penalizing with " + differenceCost);
-//            distance += differenceCost;
-//        }
+            int differenceCost = 100 * Math.abs(segmentsForA.size() - segmentsForB.size());
+            LOGGER.debug("Different number of segments, penalizing with " + differenceCost);
+            distance += differenceCost;
+        }
 
         // compare each segment with the corresponding one
         int minNumberOfSegments = Math.min(segmentsForA.size(), segmentsForB.size());
@@ -77,7 +76,7 @@ public class DefaultDistanceCalculator implements DistanceCalculator {
             // as we have heuristic above that depends on these values not 
             // beeing much larger
             segmentDistance = Math.min(25000, segmentDistance);
-            
+
             // also, the last segment is the most important as it always
             // contains the cause, try to favour it a bit
             if (segmentIndex == minNumberOfSegments - 1) {

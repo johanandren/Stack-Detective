@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author johan
  */
-public class GapCalculator implements DistanceCalculator {
+public class GapCalculator implements DistanceCalculator<StackTrace> {
 
     private static final long GAP_OPEN = 1;
 

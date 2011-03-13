@@ -18,6 +18,14 @@ public final class StackTrace {
         this.segments = segments;
     }
 
+    public StackTrace() {
+        segments = new ArrayList<Segment>();
+    }
+
+    public void addSegment(Segment segment) {
+        segments.add(segment);
+    }
+
     public int numberOfSegments() {
         return segments.size();
     }
@@ -28,11 +36,11 @@ public final class StackTrace {
     public List<Segment> getSegments() {
         return Collections.unmodifiableList(segments);
     }
-    
-    private Segment getCauseSegment() {
+
+    public Segment getCauseSegment() {
         return segments.get(segments.size() - 1);
     }
-    
+
     public String getRootExceptionType() {
         return getCauseSegment().getExceptionType();
     }

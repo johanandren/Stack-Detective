@@ -12,8 +12,9 @@ import java.util.StringTokenizer;
  *
  * @author johan
  */
-public final class DefaultStackTraceTextParser implements StackTraceTextParser {
+public final class NaiveTextParser implements StackTraceTextParser {
 
+    @Override
     public StackTrace parse(CharSequence stacktrace) {
         StringTokenizer tokenizer = new StringTokenizer(stacktrace.toString(), "\n");
         StringBuilder builder = new StringBuilder();
@@ -26,6 +27,11 @@ public final class DefaultStackTraceTextParser implements StackTraceTextParser {
             // ignore lines with "... 5 more"
             if (current.startsWith("... ")) {
                 continue;
+            }
+
+            if (current.startsWith("[catch] at")) {
+                // remove catch and handle as it was a part of this stack trace segment
+                current = current.substring(7).trim();
             }
 
             // some stacktraces have a logger line first or multiple exception
@@ -50,6 +56,7 @@ public final class DefaultStackTraceTextParser implements StackTraceTextParser {
 
             } else if (!seenAnAtYet && current.startsWith("at")) {
                 // we found the first "at" in this segment
+
                 seenAnAtYet = true;
             }
 
@@ -109,7 +116,7 @@ public final class DefaultStackTraceTextParser implements StackTraceTextParser {
         // try to split up exception text into type and text
         if (exceptionText.startsWith("Caused by: ")) {
             exceptionText = exceptionText.substring(11);
-        } else if (exceptionText.startsWith("Exception in thread ")) {
+        } else {
             // TODO: remove thread part?
         }
         String exceptionType = null;
@@ -117,6 +124,9 @@ public final class DefaultStackTraceTextParser implements StackTraceTextParser {
         if (indexOfEndOfType > -1) {
             exceptionType = exceptionText.substring(0, indexOfEndOfType);
             exceptionText = exceptionText.substring(indexOfEndOfType + 1).trim();
+        } else {
+            exceptionType = exceptionText;
+            exceptionText = "";
         }
 
 
@@ -131,34 +141,42 @@ public final class DefaultStackTraceTextParser implements StackTraceTextParser {
      */
     public Entry parseSegmentEntry(CharSequence sequence) {
         String trimmed = sequence.toString().trim();
+        //  '  at a.b.c.Class.method(File.java:23)' -> 'a.b.c.Class.method(File.java:23)'
         if (trimmed.startsWith("at")) {
-            trimmed = trimmed.replaceFirst("at\\s*", "");
+            trimmed = trimmed.substring(3);
         }
 
+        // check for Class_(_File.java
         int startParenthesis = trimmed.indexOf("(");
         if (startParenthesis == -1) {
             return null;
         }
 
+
+        // method(ClassFile.java:32) or method(Unknown Source)
+        // -> a.b.c.Class.method
         String methodAndClass = trimmed.substring(0, startParenthesis);
 
-        int semicolon = trimmed.indexOf(":");
-        if (semicolon == -1) {
-            return null;
-        }
-
-        String fileName = trimmed.substring(startParenthesis + 1, semicolon);
-
-        int endParenthesis = trimmed.indexOf(")");
-        if (endParenthesis == -1) {
-            return null;
-        }
-
-        int lineNumber = Integer.parseInt(trimmed.substring(semicolon + 1, endParenthesis));
-
+        // a.b.c.Class.method into "a.b.c.Class" and "method" 
         int lastDot = methodAndClass.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new ParseException("Could not find last dot (between class and method) in line '" + trimmed + "'");
+        }
         String className = methodAndClass.substring(0, lastDot);
         String methodName = methodAndClass.substring(lastDot + 1);
+
+
+        String parenthesisContents = trimmed.substring(startParenthesis + 1, trimmed.length() - 1);
+        int lineNumber = -1;
+        String fileName = null;
+        if (parenthesisContents.indexOf(':') > -1) {
+            String[] parts = parenthesisContents.split("\\:");
+            fileName = parts[0];
+            lineNumber = Integer.parseInt(parts[1]);
+        } else {
+            // nothing right now
+            fileName = parenthesisContents;
+        } 
 
         return new Entry(methodName, className, fileName, lineNumber);
 

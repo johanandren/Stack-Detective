@@ -1,5 +1,6 @@
 package com.markatta.stackdetective.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +26,17 @@ public final class Segment {
         this.exceptionText = exceptionText;
         this.entries = entries;
     }
-
+    
+    public Segment(String exceptionType, String exceptionText) {
+        this.exceptionType = exceptionType;
+        this.exceptionText = exceptionText;
+        this.entries = new ArrayList<Entry>();
+    }
+    
+    public void addEntry(Entry entry) {
+        entries.add(entry);
+    }
+    
     /**
      * @return The class name of the exception of this block
      */
