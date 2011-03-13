@@ -48,8 +48,6 @@ public final class Distance<T> implements Comparable<Distance> {
 
     /**
      * Makes the distances default sort on the distance value
-     * @param o
-     * @return 
      */
     @Override
     public int compareTo(Distance o) {

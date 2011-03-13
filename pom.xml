@@ -13,6 +13,11 @@
     <inceptionYear>2011</inceptionYear>
     <description>Library for stack trace parsing, rendering, comparison and clustering.</description>
    
+   
+    <prerequisites>
+        <maven>3.0.1</maven>
+    </prerequisites>
+   
     <scm>
         <connection>scm:git:git://github.com/johanandren/Stack-Detective.git</connection>
         <developerConnection>scm:git:git://github.com/johanandren/Stack-Detective.git</developerConnection>
@@ -40,6 +45,9 @@
             <name>Johan Andrén</name>
             <timezone>1</timezone>
             <email>johan@markatta.com</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
         </developer>    
     </developers>
     
@@ -65,7 +73,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.1</version>
                 <configuration>
-                 <preparationGoals>clean verify license:check</preparationGoals>   
+                    <preparationGoals>clean verify license:check</preparationGoals>   
                 </configuration>
             </plugin>
             
@@ -78,6 +86,32 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.0-beta-3</version>
+                <configuration>
+         
+                    <reportPlugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-project-info-reports-plugin</artifactId>
+                            <version>2.2</version>
+                            <configuration>
+                                <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                                <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-javadoc-plugin</artifactId>
+                            <version>2.6.1</version>
+                        </plugin>
+                    </reportPlugins>
+                </configuration>
+            </plugin>
+            
             
         </plugins>
     </build>

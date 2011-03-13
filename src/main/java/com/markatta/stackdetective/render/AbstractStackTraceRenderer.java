@@ -35,6 +35,7 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
         this.filter = filter;
     }
 
+    @Override
     public final String render(StackTrace stackTrace) {
         StringBuilder builder = new StringBuilder();
         renderPreTrace(builder, stackTrace);
@@ -97,7 +98,7 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
      * the text of the exception)
      * 
      * @param builder Add text to this builder
-     * @param segment The stack trace segment
+     * @param segments The stack trace segments
      * @param segmentIndex The number of the segment in the trace, starting with 0
      */
     protected void renderPreSegment(StringBuilder builder, List<Segment> segments, int segmentIndex) {
@@ -106,7 +107,7 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
     /**
      * Add text after iterating over the entries of the stack trace
      * @param builder Add text to this builder
-     * @param segment The stack trace segment
+     * @param segments The stack trace segments
      * @param segmentIndex The number of the segment in the trace, starting with 0
      */
     protected void renderPostSegment(StringBuilder builder, List<Segment> segments, int segmentIndex) {
@@ -117,7 +118,7 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
      * that the entry should be ignored.
      * 
      * @param builder Add text to this builder
-     * @param trace The stack trace
+     * @param entries All entries in the segment
      * @param entryIndex  The number of the entry in the segment, starting with 0
      */
     protected void renderEntry(StringBuilder builder, List<Entry> entries, int entryIndex) {
@@ -125,8 +126,8 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
 
     /**
      * Add text for one or more entries that has been ignored.
-     * @param builder
-     * @param entry 
+     * @param builder Add text to this builder
+     * @param ignoredEntries These are the entries that was ignored
      * @param firstEntryIndex the index in the segment of the first entry that was ignored starting with 1
      */
     protected void renderIgnoredEntries(StringBuilder builder, List<Entry> ignoredEntries, int firstEntryIndex) {
