@@ -11,9 +11,7 @@
     <name>Stack Detective</name>
     <url>http://markatta.com/johan/stackdetective</url>
     <inceptionYear>2011</inceptionYear>
-    <description>
-        Library for stack trace parsing, rendering, comparison and clustering.
-    </description>
+    <description>Library for stack trace parsing, rendering, comparison and clustering.</description>
    
     <scm>
         <connection>scm:git:git://github.com/johanandren/Stack-Detective.git</connection>
@@ -29,7 +27,10 @@
     </licenses>
     
     <distributionManagement>
-        
+        <site>
+            <id>stack-detective-site</id>
+            <url>http://markatta.com/johan/stackdetective</url>
+        </site>
     </distributionManagement>
    
    
@@ -50,19 +51,22 @@
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.1</version>
+                <configuration>
+                 <preparationGoals>clean verify license:check</preparationGoals>   
+                </configuration>
             </plugin>
             
             <plugin>
@@ -71,14 +75,8 @@
                 <version>1.9.0</version>
                 <configuration>
                     <header>src/etc/header.txt</header>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             
         </plugins>
@@ -100,18 +98,4 @@
             <version>1.2.14</version>
         </dependency>
     </dependencies>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>mc-release</id>
-            <name>Local Maven repository of releases for the license plugin</name>
-            <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 </project>

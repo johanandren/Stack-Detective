@@ -13,33 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.markatta.stackdetective.parse;
-
 /**
- *
- * @author johan
+ * The internal library representation of a stack trace. 
  */
-class Token {
-
-    private final TokenType type;
-
-    private final String text;
-
-    public Token(TokenType type, String text) {
-        this.type = type;
-        this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public TokenType getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[type: " + type + ", text: " + text + "]";
-    }
-}
+package com.markatta.stackdetective.model;
