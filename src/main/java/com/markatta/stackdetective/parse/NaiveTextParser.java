@@ -23,12 +23,26 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Parse a text stracktrace into stackdetective model objects
+ * <p>
+ * Parse a text stracktrace into stackdetective model objects.
+ * </p>
+ * 
  *
  * @author johan
  */
 public final class NaiveTextParser implements StackTraceTextParser {
 
+    /**
+     * <strong>Note</strong>: Avoid creating instances of this class, use
+     * {@link StackTraceParserFactory#getDefaultTextParser()} to create instances
+     * of <code>StackTraceTextParser</code>. Constructor available for internal
+     * library purposes.
+     */
+    public NaiveTextParser() {
+    }
+
+ 
+    
     @Override
     public StackTrace parse(CharSequence stacktrace) {
         StringTokenizer tokenizer = new StringTokenizer(stacktrace.toString(), "\n");

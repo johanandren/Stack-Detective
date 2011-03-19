@@ -22,7 +22,7 @@ import java.util.List;
  * Not ready for prime time yet
  * @author johan
  */
-public class DefaultTextParser implements StackTraceTextParser {
+class DefaultTextParser implements StackTraceTextParser {
 
     @Override
     public StackTrace parse(CharSequence stacktrace) {

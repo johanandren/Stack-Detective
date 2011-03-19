@@ -16,7 +16,7 @@
 package com.markatta.stackdetective.util;
 
 import com.markatta.stackdetective.model.StackTrace;
-import com.markatta.stackdetective.parse.NaiveTextParser;
+import com.markatta.stackdetective.parse.StackTraceParserFactory;
 import com.markatta.stackdetective.parse.StackTraceTextParser;
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,7 +52,7 @@ final class FileParser {
                     builder.append("\n");
                 }
 
-                StackTraceTextParser parser = new NaiveTextParser();
+                StackTraceTextParser parser = StackTraceParserFactory.getDefaultTextParser();
                 StackTrace trace = parser.parse(builder);
                 stackTraces.add(trace);
 
