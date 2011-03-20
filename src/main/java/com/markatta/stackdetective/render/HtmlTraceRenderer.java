@@ -107,8 +107,10 @@ public final class HtmlTraceRenderer extends AbstractStackTraceRenderer {
         builder.append(segmentEntry.getMethodName());
         builder.append('(');
         builder.append(segmentEntry.getFileName());
-        builder.append(':');
-        builder.append(segmentEntry.getLineNumber());
+        if (segmentEntry.getLineNumber() > -1) {
+            builder.append(':');
+            builder.append(segmentEntry.getLineNumber());
+        }
         builder.append(')');
 
         builder.append("</a>");

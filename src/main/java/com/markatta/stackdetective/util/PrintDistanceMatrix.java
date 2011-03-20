@@ -38,6 +38,8 @@ public final class PrintDistanceMatrix {
             return;
         }
 
+        long startTime = System.currentTimeMillis();
+
         List<StackTrace> stackTraces = FileParser.parseOnePerFile(args);
 
         System.out.println("Found " + stackTraces.size() + " stack traces");
@@ -45,13 +47,14 @@ public final class PrintDistanceMatrix {
         DistanceCalculator calculator = new DefaultDistanceCalculator(new IntelligentSubstitutionStrategy());
         DistanceMatrix<StackTrace> distanceMatrix = new DistanceMatrix<StackTrace>(calculator);
 
-        // calculate
-        for (int i = 0; i < args.length; i++) {
-            System.out.println(i + ". " + args[i]);
-        }
-
         for (StackTrace stackTrace : stackTraces) {
             distanceMatrix.add(stackTrace);
+        }
+
+
+        // list files with numbers used in the matrix
+        for (int i = 0; i < args.length; i++) {
+            System.out.println((i + 1) + ". " + args[i]);
         }
 
         // print
@@ -71,6 +74,9 @@ public final class PrintDistanceMatrix {
             }
             System.out.print("\n");
         }
+
+        long executionTime = System.currentTimeMillis() - startTime;
+        System.out.println("Total execution time " + executionTime + " ms");
 
 
     }

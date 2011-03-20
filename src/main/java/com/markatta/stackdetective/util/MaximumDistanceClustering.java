@@ -22,15 +22,16 @@ import com.markatta.stackdetective.distance.DefaultDistanceCalculator;
 import com.markatta.stackdetective.distance.DistanceCalculator;
 import com.markatta.stackdetective.distance.cost.IntelligentSubstitutionStrategy;
 import com.markatta.stackdetective.model.StackTrace;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * Small interactive console program for testing the nearest neighbour clustering.
+ * Small interactive console program for max
  * 
  * @author johan
  */
-public class NearestNeighbours {
+public class MaximumDistanceClustering {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -43,13 +44,13 @@ public class NearestNeighbours {
 
         List<StackTrace> stackTraces = FileParser.parseOnePerFile(args);
 
-        
+
         DistanceCalculator calculator = new DefaultDistanceCalculator(new IntelligentSubstitutionStrategy());
         DistanceMatrix<StackTrace> distanceMatrix = new DistanceMatrix<StackTrace>(calculator);
         for (StackTrace stackTrace : stackTraces) {
             distanceMatrix.add(stackTrace);
         }
-        
+
         for (int i = 0; i < stackTraces.size(); i++) {
             System.out.println((i + 1) + ": " + args[i]);
         }
@@ -59,15 +60,26 @@ public class NearestNeighbours {
 
         NearestKQuery<StackTrace> query = new NearestKQuery<StackTrace>(distanceMatrix);
         while (true) {
-            // print
-            System.out.print("Number of nearest neighbours: ");
-            int k = scanner.nextInt();
             System.out.print("To stack trace number (max " + stackTraces.size() + "): ");
             int stackTraceIndex = scanner.nextInt();
-            List<Distance<StackTrace>> nearestK = query.getNearestK(stackTraces.get(stackTraceIndex - 1), k);
-            
-            System.out.print("Nearest " + k + " to stacktrace " + stackTraceIndex + " (stacktrace:distance): ");
-            for (Distance<StackTrace> distance : nearestK) {
+            StackTrace selectedTrace = stackTraces.get(stackTraceIndex - 1);
+
+            System.out.print("Maxmum distance: ");
+            int maxDistance = scanner.nextInt();
+
+            List<Distance<StackTrace>> tracesWithinDistance = new ArrayList<Distance<StackTrace>>();
+            for (Distance<StackTrace> distance : distanceMatrix.getDistancesFrom(selectedTrace)) {
+                // do not show reflective distance
+                if (distance.getTo() == selectedTrace) {
+                    continue;
+                }
+                if (distance.getDistance() <= maxDistance) {
+                    tracesWithinDistance.add(distance);
+                }
+            }
+
+            System.out.print("Nearest " + maxDistance + " to stacktrace " + stackTraceIndex + " (stacktrace:distance): ");
+            for (Distance<StackTrace> distance : tracesWithinDistance) {
                 System.out.print((stackTraces.indexOf(distance.getTo()) + 1) + ":" + distance.getDistance() + " ");
             }
             System.out.print("\n");

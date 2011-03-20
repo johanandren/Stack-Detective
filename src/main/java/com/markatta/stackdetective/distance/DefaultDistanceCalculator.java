@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  * 
  * @author johan
  */
-public class DefaultDistanceCalculator implements DistanceCalculator<StackTrace> {
+public final class DefaultDistanceCalculator implements DistanceCalculator<StackTrace> {
 
     private static final Logger LOGGER = Logger.getLogger(DefaultDistanceCalculator.class);
 
@@ -59,50 +59,19 @@ public class DefaultDistanceCalculator implements DistanceCalculator<StackTrace>
 
     @Override
     public int calculateDistance(StackTrace a, StackTrace b) {
-        List<Segment> segmentsForA = a.getSegments();
-        List<Segment> segmentsForB = b.getSegments();
+        // we only care about the cause segment
+        Segment segmentA = a.getCauseSegment();
+        Segment segmentB = b.getCauseSegment();
 
         int distance = 0;
 
-        // if the root cause is the same exception, it is more alike regardless
-        // of stacktrace elements
-        if (a.getRootExceptionType() != null && a.getRootExceptionType().equals(b.getRootExceptionType())) {
-            distance += SAME_ROOT_MODIFIER;
-            LOGGER.debug("Same root exception type, " + SAME_ROOT_MODIFIER + " distance");
-        }
+        distance += costStrategy.exceptionDistance(segmentA.getExceptionType(), segmentB.getExceptionType());
 
-        // penalize each segment count difference with 100
-        if (segmentsForA.size() != segmentsForB.size()) {
-
-            int differenceCost = 100 * Math.abs(segmentsForA.size() - segmentsForB.size());
-            LOGGER.debug("Different number of segments, penalizing with " + differenceCost);
-            distance += differenceCost;
-        }
-
-        // compare each segment with the corresponding one
-        int minNumberOfSegments = Math.min(segmentsForA.size(), segmentsForB.size());
-        for (int segmentIndex = 0; segmentIndex < minNumberOfSegments; segmentIndex++) {
-            Segment segmentA = segmentsForA.get(segmentIndex);
-            Segment segmentB = segmentsForB.get(segmentIndex);
-
-            int segmentDistance = calculateDistance(segmentA, segmentB);
-
-            // dont let each segment cost more than this, this is important
-            // as we have heuristic above that depends on these values not 
-            // beeing much larger
-            segmentDistance = Math.min(25000, segmentDistance);
-
-            // also, the last segment is the most important as it always
-            // contains the cause, try to favour it a bit
-            if (segmentIndex == minNumberOfSegments - 1) {
-                segmentDistance *= 2;
-            }
-
-            LOGGER.debug("Segment " + segmentIndex + " distance " + segmentDistance);
-            distance += segmentDistance;
-        }
+        int segmentDistance = calculateDistance(segmentA, segmentB);
+        distance += segmentDistance;
 
         LOGGER.debug("Total distance " + distance);
+
         // never return sub-zero values
         return Math.max(0, distance);
     }
@@ -120,17 +89,20 @@ public class DefaultDistanceCalculator implements DistanceCalculator<StackTrace>
         int bSize = entriesForB.size();
         int[][] distance = new int[aSize + 1][bSize + 1];
         distance[0][0] = 0;
+
+        // [0][*] contains the cost to add any sub-stracktrace of b to an empty trace a  
         for (int bIndex = 1; bIndex <= bSize; bIndex++) {
-            // fill [0][*] with the cost for adding each entry in B
             distance[0][bIndex] = costStrategy.add(entriesForB, bIndex);
         }
 
+        // [*][0] contains the cost to add any sub-stacktrace of a to an empty trace b
         for (int i = 1; i <= aSize; i++) {
-            // fill [*][0] with the cost for adding each entry in a
             distance[i][0] = distance[i - 1][0] + costStrategy.add(entriesForA, i);
         }
 
-        // i = 1 and j = 1 already filled above
+        // flood fill the rest of the array so that any position i,j contains
+        // the distance between subtrace up to entry i from a and entry j from b
+        // i = 1 and j = 1 as 0 is already filled above
         for (int i = 1; i <= aSize; i++) {
             for (int j = 1; j <= bSize; j++) {
                 int deletion = distance[i - 1][j] + costStrategy.delete(entriesForA, i);
@@ -141,11 +113,11 @@ public class DefaultDistanceCalculator implements DistanceCalculator<StackTrace>
 
                 if (LOGGER.isTraceEnabled()) {
                     if (deletion == min) {
-                        LOGGER.trace("Chose DELETE, cost: " + min);
+                        LOGGER.trace("DELETE, cost: " + min);
                     } else if (insertion == min) {
-                        LOGGER.trace("Chose INSERT, cost: " + min);
+                        LOGGER.trace("INSERT, cost: " + min);
                     } else {
-                        LOGGER.trace("Chose SUBSTITUTE, cost: " + min);
+                        LOGGER.trace("SUBSTITUTE, cost: " + min);
                     }
 
                 }

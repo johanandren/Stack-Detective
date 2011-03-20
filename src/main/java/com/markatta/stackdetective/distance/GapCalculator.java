@@ -21,11 +21,11 @@ import com.markatta.stackdetective.distance.cost.DistanceCostStrategy;
 import java.util.List;
 
 /**
- * Gotoh gap match. Pretty useless actually.
+ * Gotoh gap match. Does not work
  * 
  * @author johan
  */
-public class GapCalculator implements DistanceCalculator<StackTrace> {
+class GapCalculator implements DistanceCalculator<StackTrace> {
 
     private static final long GAP_OPEN = 1;
 

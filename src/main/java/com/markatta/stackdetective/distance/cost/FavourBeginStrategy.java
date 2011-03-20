@@ -19,20 +19,25 @@ import com.markatta.stackdetective.model.Entry;
 import java.util.List;
 
 /**
- * Just handles location, compares stack elements with equals
+ * Just handles location, compares stack elements with equals. Differences
+ * in the end are more expensive than differences in the beginning of the
+ * stack traces.
  * 
  * @author johan
  */
 public final class FavourBeginStrategy implements DistanceCostStrategy {
 
+    @Override
     public int delete(List<Entry> a, int index) {
         return 1 + index;
     }
 
+    @Override
     public int add(List<Entry> a, int index) {
         return 1 + index;
     }
 
+    @Override
     public int substitute(List<Entry> a, int indexA, List<Entry> b, int indexB) {
         Entry entryA = a.get(indexA - 1);
         Entry entryB = b.get(indexB - 1);
@@ -40,9 +45,18 @@ public final class FavourBeginStrategy implements DistanceCostStrategy {
         if (entryA.equals(entryB)) {
             return 0;
         } else {
-            return 1 + ((indexA + indexB) / 2) ^ 2;
+            return 1 + ((indexA + indexB) / 2);
         }
 
 
+    }
+
+    @Override
+    public int exceptionDistance(String exceptionA, String exceptionB) {
+        if (exceptionA.equals(exceptionB)) {
+            return 0;
+        } else {
+            return 200;
+        }
     }
 }
