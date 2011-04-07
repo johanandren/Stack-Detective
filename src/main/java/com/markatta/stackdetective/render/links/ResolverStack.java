@@ -31,6 +31,7 @@ public final class ResolverStack implements ClassLinkResolver {
         this.resolvers = resolvers;
     }
 
+    @Override
     public String getURLFor(Entry entry) {
         for (int i = 0; i < resolvers.length; i++) {
             ClassLinkResolver classLinkResolver = resolvers[i];

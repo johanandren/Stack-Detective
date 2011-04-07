@@ -20,6 +20,7 @@ import com.markatta.stackdetective.model.StackTrace;
 import com.markatta.stackdetective.model.Segment;
 import com.markatta.stackdetective.filter.EntryFilter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -31,50 +32,61 @@ public abstract class AbstractStackTraceRenderer implements StackTraceRenderer {
 
     private EntryFilter filter;
 
-    public void setFilter(EntryFilter filter) {
+    public final void setFilter(EntryFilter filter) {
         this.filter = filter;
     }
 
     @Override
     public final String render(StackTrace stackTrace) {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         renderPreTrace(builder, stackTrace);
-        List<Entry> ignoredEntries = new ArrayList<Entry>();
+        final List<Entry> ignoredEntries = new ArrayList<Entry>();
 
         for (int segmentIndex = 0; segmentIndex < stackTrace.getSegments().size(); segmentIndex++) {
-            Segment segment = stackTrace.getSegments().get(segmentIndex);
-            
-            renderPreSegment(builder, stackTrace.getSegments(), segmentIndex);
 
-            for (int entryIndex = 0; entryIndex < segment.numberOfEntries(); entryIndex++) {
-                Entry entry = segment.getEntries().get(entryIndex);
-
-                if (filter == null) {
-                    renderEntry(builder, segment.getEntries(), entryIndex);
-                } else if (filter.include(entry, entryIndex)) {
-                    // before this there were ignored entries
-                    if (!ignoredEntries.isEmpty()) {
-                        renderIgnoredEntries(builder, ignoredEntries, entryIndex - ignoredEntries.size());
-                        ignoredEntries.clear();
-                    }
-                    renderEntry(builder, segment.getEntries(), entryIndex);
-                } else {
-                    ignoredEntries.add(entry);
-                }
-            }
-            // the stack trace ends with ignored entries
-            if (!ignoredEntries.isEmpty()) {
-                renderIgnoredEntries(builder, ignoredEntries, segment.numberOfEntries() - ignoredEntries.size());
-                ignoredEntries.clear();
-            }
-
-            renderPostSegment(builder, stackTrace.getSegments(), segmentIndex);
+            renderSegment(stackTrace, segmentIndex, builder, ignoredEntries);
             
             segmentIndex++;
         }
 
         renderPostTrace(builder, stackTrace);
         return builder.toString();
+    }
+
+    private void renderIgnoredEntries(List<Entry> ignoredEntries, StringBuilder builder, int entryIndex) {
+        // may be invoked with an empty list of ignored entries,
+        // make sure we only call renderIgnoredEntries on the subclass if there were
+        // any ignored entries
+        if (!ignoredEntries.isEmpty()) {
+            renderIgnoredEntries(builder, ignoredEntries, entryIndex - ignoredEntries.size());
+            ignoredEntries.clear();
+        }
+    }
+
+    private void renderSegment(final StackTrace stackTrace, int segmentIndex, StringBuilder builder, List<Entry> ignoredEntries) {
+        final Segment segment = stackTrace.getSegments().get(segmentIndex);
+        
+        renderPreSegment(builder, stackTrace.getSegments(), segmentIndex);
+        renderEntries(segment, builder, ignoredEntries);
+        renderIgnoredEntries(ignoredEntries, builder, segment.numberOfEntries());
+
+        renderPostSegment(builder, stackTrace.getSegments(), segmentIndex);
+       
+    }
+
+    private void renderEntries(Segment segment, StringBuilder builder, List<Entry> ignoredEntries) {
+        for (int entryIndex = 0; entryIndex < segment.numberOfEntries(); entryIndex++) {
+            Entry entry = segment.getEntries().get(entryIndex);
+
+            if (filter == null) {
+                renderEntry(builder, segment.getEntries(), entryIndex);
+            } else if (filter.include(entry, entryIndex)) {
+                renderIgnoredEntries(ignoredEntries, builder, entryIndex);
+                renderEntry(builder, segment.getEntries(), entryIndex);
+            } else {
+                ignoredEntries.add(entry);
+            }
+        }
     }
 
     /**

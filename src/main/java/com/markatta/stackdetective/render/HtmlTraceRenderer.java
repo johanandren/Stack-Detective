@@ -133,6 +133,7 @@ public final class HtmlTraceRenderer extends AbstractStackTraceRenderer {
     private void renderSegmentAsText(StringBuilder builder, Entry segmentEntry) {
         builder.append(LINE_PAD);
         builder.append(segmentEntry.getFqClassName());
+        builder.append(".");
         builder.append(segmentEntry.getMethodName());
         builder.append("(");
         builder.append(segmentEntry.getFileName());

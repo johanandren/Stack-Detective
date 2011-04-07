@@ -36,16 +36,18 @@ public class JavadocLinkResolver implements ClassLinkResolver {
         this.forPackagesStartingWith = forPackagesStartingWith;
     }
 
+    @Override
     public String getURLFor(Entry entry) {
 
         boolean matchesPackages = false;
         for (int i = 0; i < forPackagesStartingWith.length; i++) {
-            String prefix = forPackagesStartingWith[i];
+            final String prefix = forPackagesStartingWith[i];
             if (entry.getPackageName().startsWith(prefix)) {
                 matchesPackages = true;
                 break;
             }
         }
+        final String url;
         if (matchesPackages) {
 
             StringBuilder builder = new StringBuilder();
@@ -55,10 +57,11 @@ public class JavadocLinkResolver implements ClassLinkResolver {
             builder.append(entry.getClassName());
             builder.append(".html");
             
-            return builder.toString();
+            url =  builder.toString();
 
         } else {
-            return null;
+            url = null;
         }
+        return url;
     }
 }
