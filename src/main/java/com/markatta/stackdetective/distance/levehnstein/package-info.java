@@ -15,6 +15,6 @@
  */
 /**
  * API and implementation of strategies to determine the cost of the difference between two stack trace
- * entries.
+ * entries using the Levehnstein distance algorithm 
  */
-package com.markatta.stackdetective.distance.cost;
+package com.markatta.stackdetective.distance.levehnstein;

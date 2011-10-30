@@ -1,10 +1,10 @@
-package com.markatta.stackdetective.distance;
+package com.markatta.stackdetective.distance.levehnstein;
 
-import com.markatta.stackdetective.distance.cost.DistanceCostStrategy;
-import com.markatta.stackdetective.model.Entry;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.markatta.stackdetective.model.Entry;
 
 /**
  * Implementation of the levehnstein distance calculation algorithm. 
@@ -13,9 +13,9 @@ import org.apache.log4j.Logger;
  */
 final class LevehnsteinDistanceCalculation {
 
-    private static final Logger LOGGER = Logger.getLogger(LevehnsteinDistanceCalculation.class);
+    private static final Logger LOGGER = Logger.getLogger(LevehnsteinDistanceCalculation.class.getName());
 
-    private final int[][] distance;
+    private final double[][] distance;
 
     private final List<Entry> entriesForA;
 
@@ -34,7 +34,7 @@ final class LevehnsteinDistanceCalculation {
         this.entriesForB = entriesForB;
         aSize = entriesForA.size();
         bSize = entriesForB.size();
-        distance = new int[aSize + 1][bSize + 1];
+        distance = new double[aSize + 1][bSize + 1];
         operations = new Operation[aSize + 1][bSize + 1];
 
         this.costStrategy = costStrategy;
@@ -83,10 +83,10 @@ final class LevehnsteinDistanceCalculation {
      */
     private void calculateCostFor(int i, int j) {
         // choose the cheapest operation
-        int deletion = distance[i - 1][j] + costStrategy.delete(entriesForA, i);
-        int insertion = distance[i][j - 1] + costStrategy.add(entriesForB, j);
-        int substitution = distance[i - 1][j - 1] + costStrategy.substitute(entriesForA, i, entriesForB, j);
-        int cost = getMinimum(deletion, insertion, substitution);
+    	double deletion = distance[i - 1][j] + costStrategy.delete(entriesForA, i);
+    	double insertion = distance[i][j - 1] + costStrategy.add(entriesForB, j);
+    	double substitution = distance[i - 1][j - 1] + costStrategy.substitute(entriesForA, i, entriesForB, j);
+    	double cost = getMinimum(deletion, insertion, substitution);
 
         // backtrack logging
         if (deletion == cost) {
@@ -101,7 +101,7 @@ final class LevehnsteinDistanceCalculation {
     }
 
     void printEntireArrayToTraceLog() {
-        if (LOGGER.isTraceEnabled()) {
+        if (LOGGER.isLoggable(Level.FINE)) {
             // print entire array
             StringBuilder builder = new StringBuilder("Distance array:\n");
             for (int i = 0; i <= aSize; i++) {
@@ -111,76 +111,34 @@ final class LevehnsteinDistanceCalculation {
                 }
                 builder.append("\n");
             }
-            LOGGER.trace(builder.toString());
+            LOGGER.log(Level.FINE, builder.toString());
         }
     }
 
     void printBackTrackToTraceLog() {
-        if (LOGGER.isTraceEnabled()) {
+        if (LOGGER.isLoggable(Level.FINE)) {
             // print entire array
             StringBuilder builder = new StringBuilder("Operations array:\n");
             for (int i = 0; i <= aSize; i++) {
                 for (int j = 0; j <= bSize; j++) {
                     builder.append(operations[i][j].name().substring(0, 1));
                     builder.append("(");
-                    builder.append(Integer.toString(distance[i][j]));
+                    builder.append(Double.toString(distance[i][j]));
                     builder.append(")");
                     builder.append("\t");
                 }
                 builder.append("\n");
             }
-            LOGGER.trace(builder.toString());
+            LOGGER.log(Level.FINE, builder.toString());
         }
     }
 
-    int getResult() {
-        return distance[aSize][bSize];
+    double getResult() {
+    	return distance[aSize][bSize];
     }
 
-    List<BackTrackElement> getBackTrack() {
-        List<BackTrackElement> backTrack = new ArrayList<BackTrackElement>(Math.max(aSize, bSize));
-
-        int i = 0;
-        int j = 0;
-
-        while (i < aSize || j < bSize) {
-            int below;
-            if (i == aSize) {
-                below = Integer.MAX_VALUE;
-            } else {
-                below = distance[i + 1][j];
-            }
-            int diagonal;
-            if (i == aSize || j == bSize) {
-                diagonal = Integer.MAX_VALUE;
-            } else {
-                diagonal = distance[i + 1][j + 1];
-            }
-            int right;
-            if (j == bSize) {
-                right = Integer.MAX_VALUE;
-            } else {
-                right = distance[i][j + 1];
-            }
-            int min = getMinimum(below, diagonal, right);
-            if (below == min) {
-                i++;
-            } else if (right == min) {
-                j++;
-            } else {
-                i++;
-                j++;
-            }
-
-            backTrack.add(new BackTrackElement(operations[i][j], distance[i][j], i, j));
-        }
-
-
-
-        return backTrack;
-    }
-
-    private int getMinimum(int a, int b, int c) {
+    
+    private double getMinimum(double a, double b, double c) {
         return Math.min(Math.min(a, b), c);
     }
 }

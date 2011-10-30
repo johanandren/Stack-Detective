@@ -15,9 +15,6 @@
  */
 package com.markatta.stackdetective.util;
 
-import com.markatta.stackdetective.model.StackTrace;
-import com.markatta.stackdetective.parse.StackTraceParserFactory;
-import com.markatta.stackdetective.parse.StackTraceTextParser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,6 +23,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.markatta.stackdetective.model.StackTrace;
+import com.markatta.stackdetective.parse.StackTraceParserFactory;
+import com.markatta.stackdetective.parse.StackTraceTextParser;
+
 /**
  * Parses text files into stack trace objects.
  * 
@@ -33,34 +34,41 @@ import java.util.List;
  */
 final class FileParser {
 
-    static List<StackTrace> parseOnePerFile(String[] filePaths) throws IOException {
-        List<StackTrace> stackTraces = new ArrayList<StackTrace>();
+	static List<StackTrace> parseOnePerFile(File[] filePaths) throws IOException {
+		List<StackTrace> stackTraces = new ArrayList<StackTrace>();
+		for (File file : filePaths) {
+			stackTraces.add(parse(file));
+		}
+		return stackTraces;
+	}
 
-        for (int i = 0; i < filePaths.length; i++) {
-            String path = filePaths[i];
+	static List<StackTrace> parseOnePerFile(String[] filePaths) throws IOException {
+		List<StackTrace> stackTraces = new ArrayList<StackTrace>();
+		for (String path : filePaths) {
+			stackTraces.add(parse(new File(path)));
 
+		}
+		return stackTraces;
+	}
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path))));
-            try {
+	private static StackTrace parse(File file) throws IOException {
+		BufferedReader reader = null;
+		try {
 
-                StringBuilder builder = new StringBuilder();
-                String line = null;
+			reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+			StringBuilder builder = new StringBuilder();
+			String line = null;
 
+			while ((line = reader.readLine()) != null) {
+				builder.append(line);
+				builder.append("\n");
+			}
 
-                while ((line = reader.readLine()) != null) {
-                    builder.append(line);
-                    builder.append("\n");
-                }
+			StackTraceTextParser parser = StackTraceParserFactory.getDefaultTextParser();
+			return parser.parse(builder);
 
-                StackTraceTextParser parser = StackTraceParserFactory.getDefaultTextParser();
-                StackTrace trace = parser.parse(builder);
-                stackTraces.add(trace);
-
-            } finally {
-                reader.close();
-            }
-
-        }
-        return stackTraces;
-    }
+		} finally {
+			reader.close();
+		}
+	}
 }

@@ -26,9 +26,13 @@ final class DistanceValueComparator implements Comparator<Distance> {
 
     @Override
     public int compare(Distance o1, Distance o2) {
-        int distanceDiff = o1.getDistance() - o2.getDistance();
+        double distanceDiff = o1.getDistance() - o2.getDistance();
         if (distanceDiff != 0) {
-            return distanceDiff;
+        	if (distanceDiff> 0) {
+        		return 1;
+        	} else { 
+        		return -1;
+        	}
         }
 
         // avoid returning equal for non-equal objects

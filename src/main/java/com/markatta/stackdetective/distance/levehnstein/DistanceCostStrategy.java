@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.markatta.stackdetective.distance.cost;
+package com.markatta.stackdetective.distance.levehnstein;
 
 import com.markatta.stackdetective.model.Entry;
 import java.util.List;
@@ -24,28 +24,22 @@ import java.util.List;
  * 
  * @author johan
  */
-public interface DistanceCostStrategy {
+interface DistanceCostStrategy {
 
-    /**
-     * Is given the fully qualified exception name of both exceptions
-     * @return The cost of the distance between the two exceptions
-     */
-    int exceptionDistance(String exceptionA, String exceptionB);
-    
     /**
      * @return The cost to delete the entry on <code>index</code> in  <code>entries</code>
      */
-    int delete(List<Entry> entries, int index);
+	double delete(List<Entry> entries, int index);
 
     /**
      * @return  The cost to add an entry on <code>index</code> in <code>entries</code>
      */
-    int add(List<Entry> entries, int index);
+	double add(List<Entry> entries, int index);
 
     /**
      * @return The cost of replacing the entry on <code>indexA</code> in <code>entriesA</code>
      *         with the entry on <code>indexB</code> from <code>entriesB</code>
      */
-    int substitute(List<Entry> entriesA, int indexA, List<Entry> entriesB, int indexB);
+	double substitute(List<Entry> entriesA, int indexA, List<Entry> entriesB, int indexB);
     
 }

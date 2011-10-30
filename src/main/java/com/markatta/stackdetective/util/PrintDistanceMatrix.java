@@ -15,12 +15,13 @@
  */
 package com.markatta.stackdetective.util;
 
-import com.markatta.stackdetective.clustering.DistanceMatrix;
-import com.markatta.stackdetective.model.StackTrace;
-import com.markatta.stackdetective.distance.DefaultDistanceCalculator;
-import com.markatta.stackdetective.distance.DistanceCalculator;
-import com.markatta.stackdetective.distance.cost.IntelligentSubstitutionStrategy;
 import java.util.List;
+
+import com.markatta.stackdetective.clustering.DistanceMatrix;
+import com.markatta.stackdetective.distance.DistanceAlgorithm;
+import com.markatta.stackdetective.distance.StacktraceDistanceCalculatorFactory;
+import com.markatta.stackdetective.distance.levehnstein.WeightedLevehnsteinDistance;
+import com.markatta.stackdetective.model.StackTrace;
 
 /**
  * Small example app that reads stack traces from files listed as arguments and
@@ -44,7 +45,7 @@ public final class PrintDistanceMatrix {
 
         System.out.println("Found " + stackTraces.size() + " stack traces");
 
-        DistanceCalculator calculator = new DefaultDistanceCalculator(new IntelligentSubstitutionStrategy());
+        DistanceAlgorithm<StackTrace> calculator = new StacktraceDistanceCalculatorFactory().createDefaultCalculator();
         DistanceMatrix<StackTrace> distanceMatrix = new DistanceMatrix<StackTrace>(calculator);
 
         for (StackTrace stackTrace : stackTraces) {
@@ -58,7 +59,7 @@ public final class PrintDistanceMatrix {
         }
 
         // print
-        System.out.println("Score for each compared to each of the others and itself (low is more alike, 0 is identical):");
+        System.out.println("Score for each compared to each of the others and itself (0 is not alike at all, 1 is identical):");
         System.out.print("   \t");
         for (int i = 0; i < stackTraces.size(); i++) {
             System.out.format("% 10d\t", i + 1);
@@ -69,7 +70,7 @@ public final class PrintDistanceMatrix {
             StackTrace from = stackTraces.get(i);
             for (int j = 0; j < stackTraces.size(); j++) {
                 StackTrace to = stackTraces.get(j);
-                System.out.format("% 10d", distanceMatrix.getDistanceBetween(from, to));
+                System.out.format("% 10f", distanceMatrix.getDistanceBetween(from, to));
                 System.out.print("\t");
             }
             System.out.print("\n");

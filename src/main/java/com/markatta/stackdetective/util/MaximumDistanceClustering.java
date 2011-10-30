@@ -15,16 +15,16 @@
  */
 package com.markatta.stackdetective.util;
 
-import com.markatta.stackdetective.clustering.Distance;
-import com.markatta.stackdetective.clustering.DistanceMatrix;
-import com.markatta.stackdetective.clustering.NearestKQuery;
-import com.markatta.stackdetective.distance.DefaultDistanceCalculator;
-import com.markatta.stackdetective.distance.DistanceCalculator;
-import com.markatta.stackdetective.distance.cost.IntelligentSubstitutionStrategy;
-import com.markatta.stackdetective.model.StackTrace;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import com.markatta.stackdetective.clustering.Distance;
+import com.markatta.stackdetective.clustering.DistanceMatrix;
+import com.markatta.stackdetective.clustering.NearestKQuery;
+import com.markatta.stackdetective.distance.DistanceAlgorithm;
+import com.markatta.stackdetective.distance.StacktraceDistanceCalculatorFactory;
+import com.markatta.stackdetective.model.StackTrace;
 
 /**
  * Small interactive console program for max
@@ -45,7 +45,7 @@ public class MaximumDistanceClustering {
         List<StackTrace> stackTraces = FileParser.parseOnePerFile(args);
 
 
-        DistanceCalculator calculator = new DefaultDistanceCalculator(new IntelligentSubstitutionStrategy());
+        DistanceAlgorithm<StackTrace> calculator = new StacktraceDistanceCalculatorFactory().createDefaultCalculator();
         DistanceMatrix<StackTrace> distanceMatrix = new DistanceMatrix<StackTrace>(calculator);
         for (StackTrace stackTrace : stackTraces) {
             distanceMatrix.add(stackTrace);

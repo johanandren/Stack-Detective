@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.markatta.stackdetective.distance.cost;
+package com.markatta.stackdetective.distance.levehnstein;
 
 import com.markatta.stackdetective.model.Entry;
 import java.util.List;
@@ -25,20 +25,20 @@ import java.util.List;
  * 
  * @author johan
  */
-public final class FavourBeginStrategy implements DistanceCostStrategy {
+final class FavourBeginStrategy implements DistanceCostStrategy {
 
     @Override
-    public int delete(List<Entry> a, int index) {
+    public double delete(List<Entry> a, int index) {
         return 1 + index;
     }
 
     @Override
-    public int add(List<Entry> a, int index) {
+    public double add(List<Entry> a, int index) {
         return 1 + index;
     }
 
     @Override
-    public int substitute(List<Entry> a, int indexA, List<Entry> b, int indexB) {
+    public double substitute(List<Entry> a, int indexA, List<Entry> b, int indexB) {
         Entry entryA = a.get(indexA - 1);
         Entry entryB = b.get(indexB - 1);
 
@@ -51,12 +51,4 @@ public final class FavourBeginStrategy implements DistanceCostStrategy {
 
     }
 
-    @Override
-    public int exceptionDistance(String exceptionA, String exceptionB) {
-        if (exceptionA.equals(exceptionB)) {
-            return 0;
-        } else {
-            return 200;
-        }
-    }
 }

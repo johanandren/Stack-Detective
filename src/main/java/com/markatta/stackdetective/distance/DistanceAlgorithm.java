@@ -15,20 +15,12 @@
  */
 package com.markatta.stackdetective.distance;
 
-import java.util.List;
 
-/**
- *
- * @author johan
- */
-public interface DistanceCalculator<T> {
+public interface DistanceAlgorithm<T> {
     /**
      * Calculate distance between <code>a</code> and <code>b</code>
-     * @return a positive or zero value where zero means that the two objects
-     *         very much alike eachother and a high value means that they have
-     *         nothing in common.
+     * @return a float value between 1 (identic) and 0 (not at all alike) 
      */
-    public int calculateDistance(T a, T b);
+    public double calculateDistance(T a, T b);
     
-    public List<BackTrackElement> getDistanceBacktrack(T a, T b);
 }

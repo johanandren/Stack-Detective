@@ -15,40 +15,35 @@
  */
 package com.markatta.stackdetective.clustering;
 
-import com.markatta.stackdetective.distance.BackTrackElement;
-import com.markatta.stackdetective.distance.DistanceCalculator;
-import java.util.List;
-import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+import com.markatta.stackdetective.distance.DistanceAlgorithm;
 
 public class DistanceMatrixTest {
 
-    @Test
-    public void afterAddingTwoEntriesEveryPossibleCombinationHasADistance() {
-        DistanceMatrix<String> instance = new DistanceMatrix<String>(new DistanceCalculator<String>() {
+	@Test
+	public void afterAddingTwoEntriesEveryPossibleCombinationHasADistance() {
+		DistanceMatrix<String> instance = new DistanceMatrix<String>(new DistanceAlgorithm<String>() {
 
-            private int distance = 1;
+			private double distance = 1;
 
-            @Override
-            public int calculateDistance(String a, String b) {
-                return distance;
-            }
+			@Override
+			public double calculateDistance(String a, String b) {
+				return distance;
+			}
+		});
 
-            @Override
-            public List<BackTrackElement> getDistanceBacktrack(String a, String b) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-        });
+		String a = "A";
+		String b = "B";
 
-        String a = "A";
-        String b = "B";
+		instance.add(a);
+		instance.add(b);
 
-        instance.add(a);
-        instance.add(b);
-        
-        assertEquals(0, instance.getDistanceBetween(a, a));
-        assertEquals(0, instance.getDistanceBetween(b, b));
-        assertEquals(1, instance.getDistanceBetween(a, b));
-        assertEquals(1, instance.getDistanceBetween(b, a));
-    }
+		assertEquals(1, instance.getDistanceBetween(a, a), 0.0001);
+		assertEquals(1, instance.getDistanceBetween(b, b), 0.0001);
+		assertEquals(1, instance.getDistanceBetween(a, b), 0.0001);
+		assertEquals(1, instance.getDistanceBetween(b, a), 0.0001);
+	}
 }

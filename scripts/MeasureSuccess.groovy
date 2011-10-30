@@ -1,13 +1,12 @@
 import com.markatta.stackdetective.clustering.DistanceMatrix
 import com.markatta.stackdetective.model.StackTrace
-import com.markatta.stackdetective.distance.DefaultDistanceCalculator
-import com.markatta.stackdetective.distance.DistanceCalculator
-import com.markatta.stackdetective.distance.cost.IntelligentSubstitutionStrategy
+import com.markatta.stackdetective.distance.StacktraceDistanceCalculatorFactory
+import com.markatta.stackdetective.distance.DistanceAlgorithm
 import com.markatta.stackdetective.parse.StackTraceParserFactory
 
 def clustersDir = args[0]
-def limit = Integer.parseInt(args[1])
-
+def limit = Double.parseDouble(args[1])
+def start = System.currentTimeMillis()
 
 
 // load and parse each trace
@@ -22,7 +21,7 @@ new File(clustersDir).eachDir { clusterDir ->
 }
 
 // add each trace to the distance matrix
-def calculator = new DefaultDistanceCalculator(new IntelligentSubstitutionStrategy())
+def calculator = new StacktraceDistanceCalculatorFactory().createDefaultCalculator();
 def distanceMatrix = new DistanceMatrix<StackTrace>(calculator)
 tracesPerCluster.each { clusterId, traces ->
     traces.each { trace ->
@@ -64,8 +63,9 @@ tracesPerCluster.each {clusterId, traces ->
 }
 
 // figure out how many false positives
-
-
+def end = System.currentTimeMillis()
+def spent = end - start
+println "Total time spent: ${spent} ms" 
 println "Missed similiar total: ${missedSimiliar}"
 println "Matched similiar total: ${matchedSimiliar}" 
 println "False positives: ${falsePositives}"
