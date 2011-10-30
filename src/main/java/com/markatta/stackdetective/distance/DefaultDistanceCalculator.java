@@ -22,6 +22,7 @@ import com.markatta.stackdetective.distance.cost.DistanceCostStrategy;
 import com.markatta.stackdetective.filter.EntryFilter;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.log4j.Logger;
 
@@ -35,7 +36,7 @@ public final class DefaultDistanceCalculator implements DistanceCalculator<Stack
 
     private static final Logger LOGGER = Logger.getLogger(DefaultDistanceCalculator.class);
 
-    private static final int SAME_ROOT_MODIFIER = -100;
+    private static final int DIFFERENT_LENGTH_COST_PER_SEGMENT = 500;
 
     private final DistanceCostStrategy costStrategy;
 
@@ -59,16 +60,22 @@ public final class DefaultDistanceCalculator implements DistanceCalculator<Stack
 
     @Override
     public int calculateDistance(StackTrace a, StackTrace b) {
-        // we only care about the cause segment
-        Segment segmentA = a.getCauseSegment();
-        Segment segmentB = b.getCauseSegment();
-
         int distance = 0;
 
-        distance += costStrategy.exceptionDistance(segmentA.getExceptionType(), segmentB.getExceptionType());
+        Iterator<Segment> iteratorA = a.getSegments().iterator();
+        Iterator<Segment> iteratorB = b.getSegments().iterator();
+        while (iteratorA.hasNext() && iteratorB.hasNext()) {
+            Segment segmentA = iteratorA.next();
+            Segment segmentB = iteratorB.next();
+            
+            distance += costStrategy.exceptionDistance(segmentA.getExceptionType(), segmentB.getExceptionType());
 
-        int segmentDistance = calculateDistance(segmentA, segmentB);
-        distance += segmentDistance;
+            distance += calculateDistanceFor(segmentA, segmentB);
+        }
+
+        // punish different lengths
+        distance += calculatSegmentDiffCost(iteratorA);
+        distance += calculatSegmentDiffCost(iteratorB);
 
         LOGGER.debug("Total distance " + distance);
 
@@ -76,7 +83,27 @@ public final class DefaultDistanceCalculator implements DistanceCalculator<Stack
         return Math.max(0, distance);
     }
 
-    private int calculateDistance(Segment a, Segment b) {
+    private int calculatSegmentDiffCost(Iterator<Segment> iterator) {
+        int cost = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            cost += DIFFERENT_LENGTH_COST_PER_SEGMENT;
+        }
+        return cost;
+    }
+
+    private int calculateDistanceFor(Segment a, Segment b) {
+        LevehnsteinDistanceCalculation calculationData = performCalculation(a, b);
+        return calculationData.getResult();
+    }
+
+    @Override
+    public List<BackTrackElement> getDistanceBacktrack(StackTrace a, StackTrace b) {
+        LevehnsteinDistanceCalculation calculationData = performCalculation(a.getCauseSegment(), b.getCauseSegment());
+        return calculationData.getBackTrack();
+    }
+
+    private LevehnsteinDistanceCalculation performCalculation(Segment a, Segment b) {
         List<Entry> entriesForA = a.getEntries();
         List<Entry> entriesForB = b.getEntries();
 
@@ -84,62 +111,12 @@ public final class DefaultDistanceCalculator implements DistanceCalculator<Stack
             applyFilter(entriesForA);
             applyFilter(entriesForB);
         }
-
-        int aSize = entriesForA.size();
-        int bSize = entriesForB.size();
-        int[][] distance = new int[aSize + 1][bSize + 1];
-        distance[0][0] = 0;
-
-        // [0][*] contains the cost to add any sub-stracktrace of b to an empty trace a  
-        for (int bIndex = 1; bIndex <= bSize; bIndex++) {
-            distance[0][bIndex] = costStrategy.add(entriesForB, bIndex);
-        }
-
-        // [*][0] contains the cost to add any sub-stacktrace of a to an empty trace b
-        for (int i = 1; i <= aSize; i++) {
-            distance[i][0] = distance[i - 1][0] + costStrategy.add(entriesForA, i);
-        }
-
-        // flood fill the rest of the array so that any position i,j contains
-        // the distance between subtrace up to entry i from a and entry j from b
-        // i = 1 and j = 1 as 0 is already filled above
-        for (int i = 1; i <= aSize; i++) {
-            for (int j = 1; j <= bSize; j++) {
-                int deletion = distance[i - 1][j] + costStrategy.delete(entriesForA, i);
-                int insertion = distance[i][j - 1] + costStrategy.add(entriesForB, j);
-                int substitution = distance[i - 1][j - 1] + costStrategy.substitute(entriesForA, i, entriesForB, j);
-                int min = Math.min(deletion, insertion);
-                min = Math.min(min, substitution);
-
-                if (LOGGER.isTraceEnabled()) {
-                    if (deletion == min) {
-                        LOGGER.trace("DELETE, cost: " + min);
-                    } else if (insertion == min) {
-                        LOGGER.trace("INSERT, cost: " + min);
-                    } else {
-                        LOGGER.trace("SUBSTITUTE, cost: " + min);
-                    }
-
-                }
-                distance[i][j] = min;
-            }
-        }
-
-        if (LOGGER.isTraceEnabled()) {
-            // print entire array
-            LOGGER.trace("Distance array:");
-            StringBuilder builder = new StringBuilder();
-            for (int i = 0; i <= aSize; i++) {
-                for (int j = 0; j <= bSize; j++) {
-                    builder.append(distance[i][j]);
-                    builder.append("\t");
-                }
-                builder.append("\n");
-            }
-            LOGGER.trace(builder.toString());
-        }
-
-        return distance[aSize][bSize];
+        LevehnsteinDistanceCalculation calculationData =
+                new LevehnsteinDistanceCalculation(entriesForA, entriesForB, costStrategy);
+        calculationData.calculateDistance();
+        calculationData.printEntireArrayToTraceLog();
+        calculationData.printBackTrackToTraceLog();
+        return calculationData;
     }
 
     private void applyFilter(List<Entry> entries) {
@@ -151,5 +128,7 @@ public final class DefaultDistanceCalculator implements DistanceCalculator<Stack
             }
         }
         entries.removeAll(toRemove);
+
+
     }
 }

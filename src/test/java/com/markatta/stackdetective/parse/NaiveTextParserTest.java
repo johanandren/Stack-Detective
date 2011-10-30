@@ -89,6 +89,8 @@ public class NaiveTextParserTest {
         assertEquals(7, segment.numberOfEntries());
     }
 
+    
+    
     @Test
     public void testParseAnotherSegment() {
         NaiveTextParser instance = new NaiveTextParser();

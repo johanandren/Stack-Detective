@@ -15,7 +15,9 @@
  */
 package com.markatta.stackdetective.clustering;
 
+import com.markatta.stackdetective.distance.BackTrackElement;
 import com.markatta.stackdetective.distance.DistanceCalculator;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -30,6 +32,11 @@ public class DistanceMatrixTest {
             @Override
             public int calculateDistance(String a, String b) {
                 return distance;
+            }
+
+            @Override
+            public List<BackTrackElement> getDistanceBacktrack(String a, String b) {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
         });
 

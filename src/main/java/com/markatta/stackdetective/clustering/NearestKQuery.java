@@ -16,6 +16,7 @@
 package com.markatta.stackdetective.clustering;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -40,20 +41,22 @@ public class NearestKQuery<T> {
      */
     public List<Distance<T>> getNearestK(T item, int k) {
         SortedSet<Distance<T>> distances = distanceMatrix.getDistancesFrom(item);
+        return findNearestK(distances, item, k);
+
+    }
+
+    private List<Distance<T>> findNearestK(SortedSet<Distance<T>> distancesForItem, T item, int k) {
         List<Distance<T>> result = new ArrayList<Distance<T>>(k);
-        
-        for (Distance<T> distance : distances) {
+        Iterator<Distance<T>> iterator = distancesForItem.iterator();
+        while (iterator.hasNext() && result.size() <= k) {
+            Distance<T> distance = iterator.next();
             if (distance.getTo() == item) {
+                // same item, ignore
                 continue;
             }
-            if (result.size() == k) {
-                break;
-            }
-
             result.add(distance);
-            
         }
-
         return result;
+
     }
 }

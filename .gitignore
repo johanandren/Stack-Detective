@@ -1,3 +1,7 @@
 /target/
 /testdata/
 /articles/
+# eclipse cruft
+.classpath
+.project
+.settings

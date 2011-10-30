@@ -15,6 +15,8 @@
  */
 package com.markatta.stackdetective.distance;
 
+import java.util.List;
+
 /**
  *
  * @author johan
@@ -27,4 +29,6 @@ public interface DistanceCalculator<T> {
      *         nothing in common.
      */
     public int calculateDistance(T a, T b);
+    
+    public List<BackTrackElement> getDistanceBacktrack(T a, T b);
 }

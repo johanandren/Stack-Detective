@@ -41,36 +41,38 @@ public class DistanceMatrix<T> {
         this.calculator = calculator;
     }
 
-    public void add(T toAdd) {
-        Set<Distance<T>> distancesForThis = getOrCreateDistanceSetFor(toAdd);
+    public void add(T newItem) {
+        Set<Distance<T>> distancesFromThis = getOrCreateDistanceSetFrom(newItem);
 
-        // always 0 from itself
-        distancesForThis.add(new Distance<T>(toAdd, toAdd, 0));
-
-
-        for (T other : distances.keySet()) {
-            if (other == toAdd) {
-                // small optimization, never calculate distance to itself
-                continue;
-            }
-            Set<Distance<T>> distancesForOther = getOrCreateDistanceSetFor(other);
-
-            // from this to the other
-            int distance = calculator.calculateDistance(toAdd, other);
-            distancesForThis.add(new Distance<T>(toAdd, other, distance));
-
-            // from other to this
-            distance = calculator.calculateDistance(other, toAdd);
-            distancesForOther.add(new Distance<T>(other, toAdd, distance));
+        for (T otherItem : distances.keySet()) {
+            addDistanceBetween(newItem, otherItem, distancesFromThis);
         }
 
+    }
+
+    private void addDistanceBetween(T newItem, T otherItem, Set<Distance<T>> distancesForThis) {
+        if (otherItem == newItem) {
+            // small optimization, never calculate distance to itself
+            distancesForThis.add(new Distance<T>(newItem, newItem, 0));
+
+        } else {
+            Set<Distance<T>> distancesForOther = getOrCreateDistanceSetFrom(otherItem);
+
+            // from this to the other
+            int distance = calculator.calculateDistance(newItem, otherItem);
+            distancesForThis.add(new Distance<T>(newItem, otherItem, distance));
+
+            // from other to this
+            distance = calculator.calculateDistance(otherItem, newItem);
+            distancesForOther.add(new Distance<T>(otherItem, newItem, distance));
+        }
     }
 
     /**
      * Get the map of distances from the given stack trace and every other stacktrace.
      * If the map does not exist previously it is created and added to the distances map.
      */
-    private SortedSet<Distance<T>> getOrCreateDistanceSetFor(T item) {
+    private SortedSet<Distance<T>> getOrCreateDistanceSetFrom(T item) {
         if (!distances.containsKey(item)) {
             distances.put(item, new TreeSet<Distance<T>>());
         }

@@ -15,6 +15,7 @@
  */
 package com.markatta.stackdetective.distance;
 
+import java.util.List;
 import com.markatta.stackdetective.distance.cost.FavourBeginStrategy;
 import com.markatta.stackdetective.model.StackTrace;
 import com.markatta.stackdetective.parse.NaiveTextParser;
@@ -30,12 +31,24 @@ public class DefaultDistanceCalculatorTest {
     @Test
     public void equalTracesHave0Difference() {
         NaiveTextParser parser = new NaiveTextParser();
-        StackTrace result = parser.parse("java.lang.NullPointerException\n"
+        StackTrace stackTrace = parser.parse("java.lang.NullPointerException\n"
                 + "        at com.markatta.stackdetective.StackTrace.parseStackTrace(StackTrace.java:21)\n"
                 + "        at com.markatta.stackdetective.StackTraceTest.testParseStackTrace(StackTraceTest.java:15)\n");
 
         DefaultDistanceCalculator instance = new DefaultDistanceCalculator(new FavourBeginStrategy());
-        assertEquals(0, instance.calculateDistance(result, result));
+        assertEquals(0, instance.calculateDistance(stackTrace, stackTrace));
+    }
+
+    @Test
+    public void equalTracesHaveOnlyModifyWith0CostInBackTrack() {
+        NaiveTextParser parser = new NaiveTextParser();
+        StackTrace stackTrace = parser.parse("java.lang.NullPointerException\n"
+                + "        at com.markatta.stackdetective.StackTrace.parseStackTrace(StackTrace.java:21)\n"
+                + "        at com.markatta.stackdetective.StackTraceTest.testParseStackTrace(StackTraceTest.java:15)\n");
+
+        DefaultDistanceCalculator instance = new DefaultDistanceCalculator(new FavourBeginStrategy());
+        List<BackTrackElement> result = instance.getDistanceBacktrack(stackTrace, stackTrace);
+        assertEquals(result.toString(), 2, result.size());
     }
 
     @Test
