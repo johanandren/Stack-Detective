@@ -116,11 +116,33 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.7.2</version>
             </plugin>
-            
-            
+
+            <plugin>
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+                <configuration>
+                    <!-- compiler arguments -->
+                    <args>
+                        <arg>-unchecked</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-explaintypes</arg>
+                    </args>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
     <properties>
+        <scala.version>2.9.2</scala.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -129,6 +151,19 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.9.1</artifactId>
+            <version>1.6.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
