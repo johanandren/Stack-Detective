@@ -1,7 +1,9 @@
-/target/
+target/
 /testdata/
 /articles/
 # eclipse cruft
 .classpath
 .project
 .settings
+.idea
+*.iml
