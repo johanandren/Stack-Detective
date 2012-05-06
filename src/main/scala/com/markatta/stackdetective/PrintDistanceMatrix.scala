@@ -39,7 +39,7 @@ object PrintDistanceMatrix {
         Distance.defaultDistanceAlgorithm(t1, t2)
       })
 
-      println("Score for each compared to each of the others and itself (0 is not alike at all, 1 is identical):\n   \t");
+      println("Score for each compared to each of the others and itself (distance 0 is identical):\n   \t");
       for (x <- 0 until traces.size) {
         printf("% 10d\t", x + 1)
       }

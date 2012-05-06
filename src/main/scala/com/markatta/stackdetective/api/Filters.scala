@@ -2,13 +2,16 @@ package com.markatta.stackdetective.api
 
 object Filters {
 
+  /** a function that returns false for functions that should be omitted
+    * and true for functions that should be kept in the stack trace
+    */
   type FunctionFilter = (Function) => Boolean
 
-  val NoFilter: FunctionFilter = (function: Function) => false
+  val NoFilter: FunctionFilter = (function: Function) => true
 
 
   def createPackageStartsWithFilter(packageNames: String*): FunctionFilter = {
-    (function: Function) => packageNames.exists(function.packageName.startsWith(_))
+    (function: Function) => !packageNames.exists(function.packageName.startsWith(_))
   }
 
   def createCombinedFilter(filters: Seq[FunctionFilter]): FunctionFilter = {
