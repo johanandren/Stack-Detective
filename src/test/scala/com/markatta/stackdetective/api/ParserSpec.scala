@@ -135,4 +135,29 @@ Caused by: java.lang.ClassCastException: $Proxy453 cannot be cast to com.example
 
   }
 
+  it("should parse exception with multiline message containing colon") {
+    val text = """java.lang.IllegalStateException: All columns in a TableFormat:  se.databyran.prosang.client.core.tables.ColumnsTableFormat@1eefd18  must have unique identifier, that is violated by these columns:
+	 column: se.databyran.prosang.client.donor.common.table.DonationColumnDecorator@17424c3 has the same identifier: .DonationColumnDecorator as: se.databyran.prosang.client.donor.common.table.DonationColumnDecorator@19999f
+	 column: se.databyran.prosang.client.donor.common.table.DonationColumnDecorator@b4c4f6 has the same identifier: .DonationColumnDecorator as: se.databyran.prosang.client.donor.common.table.DonationColumnDecorator@17424c3
+	at se.databyran.prosang.client.core.tables.TableModelBuilder.checkTableFormatForUniqueness(TableModelBuilder.java:122)
+	at se.databyran.prosang.client.core.tables.TableModelBuilder.<init>(TableModelBuilder.java:106)
+	at se.databyran.prosang.client.core.findergui.FinderDialog.updateResultTableFormat(FinderDialog.java:489)
+	at se.databyran.prosang.client.core.findergui.FinderDialog.access$1400(FinderDialog.java:57)
+	at se.databyran.prosang.client.core.findergui.FinderDialog$8.actionPerformed(FinderDialog.java:340)
+	at javax.swing.JComboBox.fireActionEvent(Unknown Source)
+	at javax.swing.JComboBox.setSelectedItem(Unknown Source)
+	at se.databyran.prosang.client.core.util.gui.AbstractProSangComboBox.setSelectedItem(AbstractProSangComboBox.java:233)
+	at javax.swing.JComboBox.setSelectedIndex(Unknown Source)
+	at se.databyran.prosang.client.core.util.gui.AbstractProSangComboBox.setSelectedIndex(AbstractProSangComboBox.java:159)
+	at javax.swing.plaf.basic.BasicComboPopup$Handler.mouseReleased(Unknown Source)
+	at java.awt.AWTEventMulticaster.mouseReleased(Unknown Source)
+	at java.awt.Component.processMouseEvent(Unknown Source)
+	at javax.swing.JComponent.processMouseEvent(Unknown Source)"""
+
+    val parser = StackTraceParser()
+    val result = parser.parse(text)
+
+    result.segments.size should be (1)
+  }
+
 }
