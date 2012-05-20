@@ -65,9 +65,6 @@ object Distance {
         }
       }
 
-
-
-
       setupDefaultCosts()
       floodFillDistances()
 

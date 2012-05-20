@@ -23,6 +23,6 @@ object DocLinkResolvers {
     }
   }
 
-  def createJdkDocLinkresolver(jdkDocUrl: String): LinkResolver =
+  def createJdkDocLinkResolver(jdkDocUrl: String): LinkResolver =
     createJavadocLinkResolver(jdkDocUrl, "java.", "javax.", "sun.", "org.w3c.dom")
 }

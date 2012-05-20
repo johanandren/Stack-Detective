@@ -41,7 +41,7 @@ object Renderers {
     builder.toString
   }
 
-  def createHtmlRenderer(linkResolvers: Seq[LinkResolver] = List(createJdkDocLinkresolver(JdkDocUrls.jdk6))): Renderer = {
+  def createHtmlRenderer(linkResolvers: Seq[LinkResolver] = List(createJdkDocLinkResolver(JdkDocUrls.jdk6))): Renderer = {
      filter: FunctionFilter => trace: StackTrace => {
       val builder = new StringBuilder
 
